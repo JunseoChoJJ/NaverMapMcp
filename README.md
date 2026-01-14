@@ -15,14 +15,14 @@
 | `master` | 프로덕션 배포 브랜치 |
 | `develop` | 개발 통합 브랜치 |
 | `feature/*` | 새로운 기능 개발 브랜치 |
-| `bugfix/*` | 버그 수정 브랜치 |
+| `hotfix/*` | 버그 수정 브랜치 |
 
 ### 브랜치 네이밍 예시
 ```bash
 feature/naver-map-directions
 feature/geocoding-service
-bugfix/cors-middleware-error
-bugfix/api-timeout-handling
+hotfix/cors-middleware-error
+hotfix/api-timeout-handling
 ```
 
 ---
