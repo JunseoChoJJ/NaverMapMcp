@@ -12,8 +12,21 @@ def register_geocode_tool(mcp: FastMCP) -> None:
         name="naver_geocode",
         description=(
             "Geocode an address or place name using the Naver Map Geocode API. "
-            "Provide the query string, and optionally a coordinate system (e.g., epsg:4326)."
+            "Provide the query string, and optionally a center coordinate "
+            "('lng,lat'), page, count, or filter."
         ),
     )
-    def geocode(query: str, coordinate_system: str | None = None) -> Mapping[str, Any]:
-        return service.geocode(query=query, coordinate_system=coordinate_system)
+    def geocode(
+        query: str,
+        coordinate: str | None = None,
+        page: int | None = None,
+        count: int | None = None,
+        filter: str | None = None,
+    ) -> Mapping[str, Any]:
+        return service.geocode(
+            query=query,
+            coordinate=coordinate,
+            page=page,
+            count=count,
+            filter=filter,
+        )

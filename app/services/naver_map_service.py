@@ -16,10 +16,23 @@ class NaverMapService:
     def __init__(self, credentials: NaverMapCredentials | None = None) -> None:
         self._credentials = credentials or self._load_credentials()
 
-    def geocode(self, query: str, coordinate_system: str | None = None) -> Mapping[str, Any]:
+    def geocode(
+        self,
+        query: str,
+        coordinate: str | None = None,
+        page: int | None = None,
+        count: int | None = None,
+        filter: str | None = None,
+    ) -> Mapping[str, Any]:
         params: dict[str, str] = {"query": query}
-        if coordinate_system:
-            params["coordinate"] = coordinate_system
+        if coordinate:
+            params["coordinate"] = coordinate
+        if page is not None:
+            params["page"] = str(page)
+        if count is not None:
+            params["count"] = str(count)
+        if filter:
+            params["filter"] = filter
         return self._request(
             "https://maps.apigw.ntruss.com/map-geocode/v2/geocode",
             params,
