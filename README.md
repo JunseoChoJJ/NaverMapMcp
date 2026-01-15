@@ -9,7 +9,7 @@ LLM이 장소 검색, 좌표 변환, 경로 안내 기능을 사용할 수 있�
 
 | Tool | 설명 | API |
 |------|------|-----|
-| `naver_places` | 장소명으로 검색 (예: "인천공항", "성균관대") | Naver Developers |
+| `naver_places` | 장소명으로 검색 (예: "홍대", 성수") | Naver Developers |
 | `naver_geocode` | 주소 → 좌표 변환(x,y) 위도, 경도 | Naver Cloud Platform |
 | `naver_directions` | 두 좌표 간 경로 안내 (거리, 소요시간) | Naver Cloud Platform |
 
@@ -18,8 +18,8 @@ LLM이 장소 검색, 좌표 변환, 경로 안내 기능을 사용할 수 있�
 ```
 "인천공항에서 성균관대까지 얼마나 걸려?"
     ↓
-1. naver_places("인천공항") → 주소 획득
-2. naver_places("성균관대") → 주소 획득
+1. naver_places("홍대") → 주소 획득
+2. naver_places("성수") → 주소 획득
     ↓
 3. naver_geocode -> 위도,경도 획득
 4. naver_directions(start, goal) → 거리, 소요시간 반환
