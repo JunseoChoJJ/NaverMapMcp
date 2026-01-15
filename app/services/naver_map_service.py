@@ -21,7 +21,7 @@ class NaverMapService:
         if coordinate_system:
             params["coordinate"] = coordinate_system
         return self._request(
-            "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode",
+            "https://maps.apigw.ntruss.com/map-geocode/v2/geocode",
             params,
         )
 
@@ -38,7 +38,7 @@ class NaverMapService:
         if waypoints:
             params["waypoints"] = waypoints
         return self._request(
-            "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving",
+            "https://maps.apigw.ntruss.com/map-direction/v1/driving",
             params,
         )
 
@@ -55,8 +55,8 @@ class NaverMapService:
         request = Request(f"{url}?{query}")
         request.add_header("X-NCP-APIGW-API-KEY-ID", self._credentials.client_id)
         request.add_header("X-NCP-APIGW-API-KEY", self._credentials.client_secret)
-        request.add_header("X-Naver-Client-Id", self._credentials.client_id)
-        request.add_header("X-Naver-Client-Secret", self._credentials.client_secret)
+        #request.add_header("X-Naver-Client-Id", self._credentials.client_id)
+        #request.add_header("X-Naver-Client-Secret", self._credentials.client_secret)
         with urlopen(request) as response:
             payload = response.read().decode("utf-8")
         return json.loads(payload)

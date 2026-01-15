@@ -17,10 +17,9 @@ def createMcpServer() -> FastMCP:
             enable_dns_rebinding_protection=False,
         ),
     )
-    
-    register_directions_tool(mcp)
     register_geocode_tool(mcp)
-    register_places_tool(mcp)
+    register_directions_tool(mcp)
+    #register_places_tool(mcp)
     
     
     return mcp
