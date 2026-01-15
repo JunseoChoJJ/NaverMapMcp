@@ -7,6 +7,11 @@ from app.tools.directions import register_directions_tool
 from app.tools.geocode import register_geocode_tool
 from app.tools.places import register_places_tool
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
+# 나머지 import...
 def createMcpServer() -> FastMCP:
     mcp = FastMCP(
         "Supabase MCP Server",
@@ -19,7 +24,7 @@ def createMcpServer() -> FastMCP:
     )
     register_geocode_tool(mcp)
     register_directions_tool(mcp)
-    #register_places_tool(mcp)
+    register_places_tool(mcp)
     
     
     return mcp

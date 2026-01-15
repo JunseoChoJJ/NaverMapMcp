@@ -8,8 +8,12 @@ from urllib.request import Request, urlopen
 
 @dataclass(frozen=True)
 class NaverMapCredentials:
-    client_id: str
-    client_secret: str
+    # Naver Cloud Platform (Geocode, Directions)
+    ncp_client_id: str
+    ncp_client_secret: str
+    # Naver Developers (Places/Local Search)
+    dev_client_id: str
+    dev_client_secret: str
 
 
 class NaverMapService:
@@ -33,7 +37,7 @@ class NaverMapService:
             params["count"] = str(count)
         if filter:
             params["filter"] = filter
-        return self._request(
+        return self._request_ncp(
             "https://maps.apigw.ntruss.com/map-geocode/v2/geocode",
             params,
         )
@@ -50,7 +54,7 @@ class NaverMapService:
             params["option"] = option
         if waypoints:
             params["waypoints"] = waypoints
-        return self._request(
+        return self._request_ncp(
             "https://maps.apigw.ntruss.com/map-direction/v1/driving",
             params,
         )
@@ -59,17 +63,35 @@ class NaverMapService:
         params: dict[str, str] = {"query": query}
         if display is not None:
             params["display"] = str(display)
-        return self._request("https://openapi.naver.com/v1/search/local.json", params)
+        return self._request_dev(
+            "https://openapi.naver.com/v1/search/local.json",
+            params,
+        )
 
-    def _request(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
-        if not self._credentials.client_id or not self._credentials.client_secret:
-            raise ValueError("NAVER_MAP_CLIENT_ID and NAVER_MAP_CLIENT_SECRET are required")
+    def _request_ncp(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
+        """Naver Cloud Platform API 요청 (Geocode, Directions)"""
+        if not self._credentials.ncp_client_id or not self._credentials.ncp_client_secret:
+            raise ValueError("NCP_CLIENT_ID and NCP_CLIENT_SECRET are required")
+        
         query = urlencode(params)
         request = Request(f"{url}?{query}")
-        request.add_header("X-NCP-APIGW-API-KEY-ID", self._credentials.client_id)
-        request.add_header("X-NCP-APIGW-API-KEY", self._credentials.client_secret)
-        #request.add_header("X-Naver-Client-Id", self._credentials.client_id)
-        #request.add_header("X-Naver-Client-Secret", self._credentials.client_secret)
+        request.add_header("X-NCP-APIGW-API-KEY-ID", self._credentials.ncp_client_id)
+        request.add_header("X-NCP-APIGW-API-KEY", self._credentials.ncp_client_secret)
+        
+        with urlopen(request) as response:
+            payload = response.read().decode("utf-8")
+        return json.loads(payload)
+
+    def _request_dev(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
+        """Naver Developers API 요청 (Places/Local Search)"""
+        if not self._credentials.dev_client_id or not self._credentials.dev_client_secret:
+            raise ValueError("DEV_CLIENT_ID and DEV_CLIENT_SECRET are required")
+        
+        query = urlencode(params)
+        request = Request(f"{url}?{query}")
+        request.add_header("X-Naver-Client-Id", self._credentials.dev_client_id)
+        request.add_header("X-Naver-Client-Secret", self._credentials.dev_client_secret)
+        
         with urlopen(request) as response:
             payload = response.read().decode("utf-8")
         return json.loads(payload)
@@ -77,6 +99,8 @@ class NaverMapService:
     @staticmethod
     def _load_credentials() -> NaverMapCredentials:
         return NaverMapCredentials(
-            client_id=os.getenv("NAVER_MAP_CLIENT_ID", ""),
-            client_secret=os.getenv("NAVER_MAP_CLIENT_SECRET", ""),
+            ncp_client_id=os.getenv("NAVER_NCP_CLIENT_ID", ""),
+            ncp_client_secret=os.getenv("NAVER_NCP_CLIENT_SECRET", ""),
+            dev_client_id=os.getenv("NAVER_DEV_CLIENT_ID", ""),
+            dev_client_secret=os.getenv("NAVER_DEV_CLIENT_SECRET", ""),
         )
