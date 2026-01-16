@@ -15,5 +15,5 @@ def register_places_tool(mcp: FastMCP) -> None:
             "Provide a query string and optional display count (max 100)."
         ),
     )
-    def places(query: str, display: int | None = None) -> Mapping[str, Any]:
-        return service.places(query=query, display=display)
+    async def places(query: str, display: int | None = None) -> Mapping[str, Any]:
+        return await service.places(query=query, display=display)

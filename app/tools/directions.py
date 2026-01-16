@@ -16,10 +16,15 @@ def register_directions_tool(mcp: FastMCP) -> None:
             "formatted as 'lng,lat' (e.g., 127.1054328,37.3595963)."
         ),
     )
-    def directions(
+    async def directions(
         start: str,
         goal: str,
         option: str | None = None,
         waypoints: str | None = None,
     ) -> Mapping[str, Any]:
-        return service.directions(start=start, goal=goal, option=option, waypoints=waypoints)
+        return await service.directions(
+            start=start,
+            goal=goal,
+            option=option,
+            waypoints=waypoints,
+        )
