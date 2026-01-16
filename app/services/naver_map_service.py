@@ -1,9 +1,10 @@
-import json
 import os
+import httpx
+
 from dataclasses import dataclass
 from typing import Any, Mapping
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+
 
 
 @dataclass(frozen=True)
@@ -20,7 +21,7 @@ class NaverMapService:
     def __init__(self, credentials: NaverMapCredentials | None = None) -> None:
         self._credentials = credentials or self._load_credentials()
 
-    def geocode(
+    async def geocode(
         self,
         query: str,
         coordinate: str | None = None,
@@ -37,12 +38,12 @@ class NaverMapService:
             params["count"] = str(count)
         if filter:
             params["filter"] = filter
-        return self._request_ncp(
+        return await self._request_ncp(
             "https://maps.apigw.ntruss.com/map-geocode/v2/geocode",
             params,
         )
 
-    def directions(
+    async def directions(
         self,
         start: str,
         goal: str,
@@ -54,47 +55,53 @@ class NaverMapService:
             params["option"] = option
         if waypoints:
             params["waypoints"] = waypoints
-        return self._request_ncp(
+        return await self._request_ncp(
             "https://maps.apigw.ntruss.com/map-direction/v1/driving",
             params,
         )
 
-    def places(self, query: str, display: int | None = None) -> Mapping[str, Any]:
+    async def places(self, query: str, display: int | None = None) -> Mapping[str, Any]:
         params: dict[str, str] = {"query": query}
         if display is not None:
             params["display"] = str(display)
-        return self._request_dev(
+        return await self._request_dev(
             "https://openapi.naver.com/v1/search/local.json",
             params,
         )
 
-    def _request_ncp(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
+    async def _request_ncp(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
         """Naver Cloud Platform API 요청 (Geocode, Directions)"""
         if not self._credentials.ncp_client_id or not self._credentials.ncp_client_secret:
             raise ValueError("NCP_CLIENT_ID and NCP_CLIENT_SECRET are required")
         
+        headers = {
+            "X-NCP-APIGW-API-KEY-ID": self._credentials.ncp_client_id,
+            "X-NCP-APIGW-API-KEY": self._credentials.ncp_client_secret,
+        }
         query = urlencode(params)
-        request = Request(f"{url}?{query}")
-        request.add_header("X-NCP-APIGW-API-KEY-ID", self._credentials.ncp_client_id)
-        request.add_header("X-NCP-APIGW-API-KEY", self._credentials.ncp_client_secret)
+        query = urlencode(params)
         
-        with urlopen(request) as response:
-            payload = response.read().decode("utf-8")
-        return json.loads(payload)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{url}?{query}", headers=headers)
+            response.raise_for_status()
+            return response.json()
+        
 
-    def _request_dev(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
+    async def _request_dev(self, url: str, params: Mapping[str, str]) -> Mapping[str, Any]:
         """Naver Developers API 요청 (Places/Local Search)"""
         if not self._credentials.dev_client_id or not self._credentials.dev_client_secret:
             raise ValueError("DEV_CLIENT_ID and DEV_CLIENT_SECRET are required")
         
+        headers = {
+            "X-Naver-Client-Id": self._credentials.dev_client_id,
+            "X-Naver-Client-Secret": self._credentials.dev_client_secret,
+        }
         query = urlencode(params)
-        request = Request(f"{url}?{query}")
-        request.add_header("X-Naver-Client-Id", self._credentials.dev_client_id)
-        request.add_header("X-Naver-Client-Secret", self._credentials.dev_client_secret)
-        
-        with urlopen(request) as response:
-            payload = response.read().decode("utf-8")
-        return json.loads(payload)
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{url}?{query}", headers=headers)
+            response.raise_for_status()
+            return response.json()
 
     @staticmethod
     def _load_credentials() -> NaverMapCredentials:

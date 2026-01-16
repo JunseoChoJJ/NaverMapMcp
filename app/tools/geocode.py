@@ -16,14 +16,14 @@ def register_geocode_tool(mcp: FastMCP) -> None:
             "('lng,lat'), page, count, or filter."
         ),
     )
-    def geocode(
+    async def geocode(
         query: str,
         coordinate: str | None = None,
         page: int | None = None,
         count: int | None = None,
         filter: str | None = None,
     ) -> Mapping[str, Any]:
-        return service.geocode(
+        return await service.geocode(
             query=query,
             coordinate=coordinate,
             page=page,
